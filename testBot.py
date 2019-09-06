@@ -1,12 +1,105 @@
-import telebot
 import wikipedia
+import datetime
+from telegram import Bot
+from telegram import Update
+from telegram import ParseMode
+from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardMarkup
+from telegram import ReplyKeyboardRemove
+from telegram.ext import Updater
+from telegram.ext import CommandHandler
+from telegram.ext import MessageHandler
+from telegram.ext import Filters
+from telegram.ext import CallbackQueryHandler
 
-bot = telebot.TeleBot("956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ")
+lastSearch = ""
 
-@bot.message_handler(content_types=['text'])
-def send_article(message):
-    #article = wikipedia.summary("Albert Einstein", sentences=2)
-    wikipedia.set_lang("ru")
-    bot.send_message(message.chat.id, wikipedia.summary(message.text, sentences=2))
+CALLBACK_BUTTON1_LANG = "callback_button1_lang"
+CALLBACK_BUTTON2_LANG = "callback_button2_lang"
+TITLES = {
+    CALLBACK_BUTTON1_LANG: "ru",
+    CALLBACK_BUTTON2_LANG: "en"
+    }
 
-bot.polling(none_stop = True)
+
+
+def do_start(update: Update, context):
+    update.message.reply_text('Привет! Это WiKi бот, отправь мне что-нибудь')
+    
+def do_echo(update: Update, context):
+    chat_id = update.message.chat_id
+    global lastSearch
+    lastSearch = update.message.text
+    try:
+        reply_text = wikipedia.summary(update.message.text, sentences=2)
+
+    except wikipedia.exceptions.DisambiguationError as error:
+        reply_text =  update.message.text + " не найдено, возможно Вы искали\n" + error
+    update.message.reply_text(
+         text=reply_text,
+         reply_markup=get_keyboard()
+        )
+
+def get_keyboard():
+    keyboard = [
+        [
+            InlineKeyboardButton(TITLES[CALLBACK_BUTTON1_LANG], callback_data=CALLBACK_BUTTON1_LANG),
+            InlineKeyboardButton(TITLES[CALLBACK_BUTTON2_LANG], callback_data=CALLBACK_BUTTON2_LANG),
+            ]
+        ]
+    return InlineKeyboardMarkup(keyboard)
+
+def keyboard_callback_handler(update: Update, context):
+    
+    query = update.callback_query
+    data = query.data
+    now = datetime.datetime.now()
+    chat_id = update.effective_message.chat_id
+    current_text = update.effective_message.text
+
+    if data in (CALLBACK_BUTTON1_LANG, CALLBACK_BUTTON2_LANG):
+        pair = {
+            CALLBACK_BUTTON1_LANG: "ru",
+            CALLBACK_BUTTON2_LANG: "en"
+        }[data]
+
+        try:
+            wikipedia.set_lang(pair)
+
+            #current_price = client.get_last_price(pair=pair)
+            
+            
+            text = wikipedia.summary(lastSearch, sentences=2)
+
+        except BittrexError:
+            text = "Произошла ошибка :(\n\nПопробуйте ещё раз"
+
+        query.edit_message_text(
+            text=text,
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=get_keyboard(),
+        )
+
+def main():
+    bot = Bot(
+        token="956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ",
+        base_url=None,
+    )
+    updater = Updater("956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ", use_context=True)
+    start_handler = CommandHandler("start", do_start)
+    message_handler = MessageHandler(Filters.text, do_echo)
+    buttons_handler = CallbackQueryHandler(callback=keyboard_callback_handler)
+    updater.dispatcher.add_handler(start_handler)
+    updater.dispatcher.add_handler(message_handler)
+    updater.dispatcher.add_handler(buttons_handler)
+
+    # Начать обработку входящих сообщений
+    updater.start_polling()
+    # Не прерывать скрипт до обработки всех сообщений
+    updater.idle()
+
+    logger.info("Закончили...")
+
+
+if __name__ == '__main__':
+    main()
