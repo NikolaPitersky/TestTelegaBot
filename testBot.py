@@ -24,8 +24,8 @@ TITLES = {
 def wikisearch(item: object):
     try:
         res = wikipedia.summary(item)
-    except wikipedia.exceptions.DisambiguationError as error:
-    #except Exception:
+    #except wikipedia.exceptions.DisambiguationError as error:
+    except Exception:
         res =  item + " не найдено  :(\n"
     return res
 
@@ -68,7 +68,7 @@ def keyboard_callback_handler(update: Update, context):
         try:
             wikipedia.set_lang(pair)
             #current_price = client.get_last_price(pair=pair)
-            text = update.message.text(lastSearch)
+            text = wikisearch(lastSearch)
         except Error:
             text = "Произошла ошибка :(\n\nПопробуйте ещё раз"
         query.edit_message_text(
