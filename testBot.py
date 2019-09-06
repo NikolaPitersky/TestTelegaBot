@@ -33,9 +33,11 @@ def wikisearch(item: object):
     return res
 
 def do_start(update: Update, context):
+    print(33)
     update.message.reply_text('Привет! Это WiKi бот, отправь мне что-нибудь')
     
 def do_echo(update: Update, context):
+    print(55)
     chat_id = update.message.chat_id
     global lastSearch
     print(5)
@@ -88,7 +90,7 @@ def keyboard_callback_handler(update: Update, context):
         print(11)
 
 def main():
-    updater = Updater("956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ", use_context=True)
+    updater = Updater("956505475:AAGpY9DhGwfT4oEzSmH_tBpF1Y-gT_HKKQo", use_context=True)
     start_handler = CommandHandler("start", do_start)
     message_handler = MessageHandler(Filters.text, do_echo)
     buttons_handler = CallbackQueryHandler(callback=keyboard_callback_handler)
