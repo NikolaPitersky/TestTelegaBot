@@ -24,8 +24,8 @@ TITLES = {
 def wikisearch(item: object):
     try:
         res = wikipedia.summary(item)
-    #except wikipedia.exceptions.DisambiguationError as error:
-    except Exception:
+    except wikipedia.exceptions.DisambiguationError as error:
+    #except Exception:
         res =  item + " не найдено  :(\n"
     return res
 
