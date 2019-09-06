@@ -22,33 +22,24 @@ TITLES = {
 
 def wikisearch(item: object):
     try:
-        print(1)
         res = wikipedia.summary(item)
-        print(2)
     #except wikipedia.exceptions.DisambiguationError as error:
     except Exception:
-        print(3)
         res =  item + " не найдено  :(\n"
-        print(4)
     return res
 
 def do_start(update: Update, context):
-    print(33)
     update.message.reply_text('Привет! Это WiKi бот, отправь мне что-нибудь')
     
 def do_echo(update: Update, context):
-    print(55)
     chat_id = update.message.chat_id
     global lastSearch
-    print(5)
     lastSearch = update.message.text
     reply_text = wikisearch(lastSearch)
-    print(6)
     update.message.reply_text(
          text=reply_text,
          reply_markup=get_keyboard()
         )
-    print(7)
 
 def get_keyboard():
     keyboard = [
@@ -74,12 +65,9 @@ def keyboard_callback_handler(update: Update, context):
         }[data]
 
         try:
-            print(8)
             wikipedia.set_lang(pair)
-            print(9)
             #current_price = client.get_last_price(pair=pair)
             text = wikisearch(lastSearch)
-            print(10)
         except Error:
             text = "Произошла ошибка :(\n\nПопробуйте ещё раз"
         query.edit_message_text(
@@ -87,7 +75,6 @@ def keyboard_callback_handler(update: Update, context):
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=get_keyboard(),
         )
-        print(11)
 
 def main():
     updater = Updater("956505475:AAGpY9DhGwfT4oEzSmH_tBpF1Y-gT_HKKQo", use_context=True)
