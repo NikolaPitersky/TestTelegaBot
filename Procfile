@@ -1,1 +1,1 @@
-web: python3 testBot.py --log-file -
+web: python testBot.py --log-file -
