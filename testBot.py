@@ -21,7 +21,13 @@ TITLES = {
     CALLBACK_BUTTON2_LANG: "en"
     }
 
-
+def wikisearch(item: object):
+    try:
+        res = wikipedia.summary(item)
+    #except wikipedia.exceptions.DisambiguationError as error:
+    except Exception:
+        res =  item + " не найдено  :(\n"
+    return res
 
 def do_start(update: Update, context):
     update.message.reply_text('Привет! Это WiKi бот, отправь мне что-нибудь')
@@ -30,11 +36,7 @@ def do_echo(update: Update, context):
     chat_id = update.message.chat_id
     global lastSearch
     lastSearch = update.message.text
-    try:
-        reply_text = wikipedia.summary(update.message.text, sentences=2)
-
-    except wikipedia.exceptions.DisambiguationError as error:
-        reply_text =  update.message.text + " не найдено, возможно Вы искали\n" + error
+    reply_text = wikisearch(update.message.text)
     update.message.reply_text(
          text=reply_text,
          reply_markup=get_keyboard()
@@ -65,15 +67,10 @@ def keyboard_callback_handler(update: Update, context):
 
         try:
             wikipedia.set_lang(pair)
-
             #current_price = client.get_last_price(pair=pair)
-            
-            
-            text = wikipedia.summary(lastSearch, sentences=2)
-
-        except BittrexError:
+            text = update.message.text(lastSearch)
+        except Error:
             text = "Произошла ошибка :(\n\nПопробуйте ещё раз"
-
         query.edit_message_text(
             text=text,
             parse_mode=ParseMode.MARKDOWN,
