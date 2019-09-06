@@ -1,6 +1,5 @@
 import wikipedia
 import datetime
-from telegram import Bot
 from telegram import Update
 from telegram import ParseMode
 from telegram import InlineKeyboardButton
@@ -36,7 +35,7 @@ def do_echo(update: Update, context):
     chat_id = update.message.chat_id
     global lastSearch
     lastSearch = update.message.text
-    reply_text = wikisearch(update.message.text)
+    reply_text = wikisearch(lastSearch)
     update.message.reply_text(
          text=reply_text,
          reply_markup=get_keyboard()
@@ -78,10 +77,6 @@ def keyboard_callback_handler(update: Update, context):
         )
 
 def main():
-    bot = Bot(
-        token="956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ",
-        base_url=None,
-    )
     updater = Updater("956505475:AAG7xP3lnTWonR30JU7dR0-zf4LYg56E7UQ", use_context=True)
     start_handler = CommandHandler("start", do_start)
     message_handler = MessageHandler(Filters.text, do_echo)
